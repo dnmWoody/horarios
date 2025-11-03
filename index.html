@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Horarios Semanales</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Gestor de Horarios Semanales</h1>
+    <div class="selector">
+      <label for="anio">Año:</label>
+      <select id="anio"></select>
+
+      <label for="mes">Mes:</label>
+      <select id="mes"></select>
+
+      <button id="verMes">Ver Mes</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="contenedorSemanas">
+      <!-- Aquí se mostrarán las semanas del mes seleccionado -->
+    </section>
+
+    <section id="detalleSemana" class="oculto">
+      <h2 id="tituloSemana"></h2>
+      <table id="tablaHorarios">
+        <thead>
+          <tr>
+            <th>Día</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Horas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filas de días -->
+        </tbody>
+      </table>
+
+      <div class="resumen">
+        <p>Total de horas: <span id="totalHoras">0</span> hs</p>
+        <button id="guardarSemana">Guardar Semana</button>
+        <button id="exportarExcel">Exportar a Excel</button>
+        <button id="volver">Volver</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+</body>
+</html>

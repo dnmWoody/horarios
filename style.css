@@ -1,0 +1,171 @@
+/* ======== ESTILO GENERAL ======== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #f2f6fc;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ======== ENCABEZADO ======== */
+header {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #0056b3;
+}
+
+.selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.selector label {
+  font-weight: 600;
+}
+
+.selector select, .selector button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.selector button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.selector button:hover {
+  background-color: #0056b3;
+}
+
+/* ======== CONTENEDOR DE SEMANAS ======== */
+#contenedorSemanas {
+  width: 100%;
+  max-width: 600px;
+  display: grid;
+  gap: 15px;
+}
+
+.semana {
+  background-color: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.semana:hover {
+  transform: scale(1.02);
+}
+
+.semana h3 {
+  color: #007bff;
+}
+
+/* ======== DETALLE DE SEMANA ======== */
+#detalleSemana {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.oculto {
+  display: none;
+}
+
+#tituloSemana {
+  text-align: center;
+  color: #0056b3;
+  margin-bottom: 15px;
+}
+
+#tablaHorarios {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+#tablaHorarios th, #tablaHorarios td {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+#tablaHorarios th {
+  background-color: #f0f4fa;
+}
+
+#tablaHorarios input {
+  width: 90%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.hora-exceso {
+  color: red;
+  font-weight: bold;
+}
+
+/* ======== BOTONES DE SEMANA ======== */
+.resumen {
+  text-align: center;
+}
+
+.resumen p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.resumen button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.resumen button:hover {
+  background-color: #0056b3;
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+  #tablaHorarios th, #tablaHorarios td {
+    font-size: 0.9rem;
+    padding: 6px;
+  }
+}
