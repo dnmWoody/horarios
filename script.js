@@ -60,16 +60,38 @@ function mostrarSemanas(anio, mes) {
   const semanas = obtenerSemanasDelMes(anio, mes);
 
   semanas.forEach((sem, i) => {
+    const rango = `${formatearFecha(sem.inicio)}-${formatearFecha(sem.fin)}`;
+
+    // ✅ Buscar la semana en este mes o en los meses vecinos
+    const dataGuardada =
+      horarios[anio]?.[mes]?.[rango] ||
+      horarios[anio]?.[mes - 1]?.[rango] ||
+      horarios[anio]?.[parseInt(mes) + 1]?.[rango];
+
     const div = document.createElement("div");
     div.className = "semana";
     div.innerHTML = `
       <h3>Semana ${i + 1}</h3>
       <p>${formatearFecha(sem.inicio)} - ${formatearFecha(sem.fin)}</p>
     `;
-    div.addEventListener("click", () => abrirSemana(anio, mes, sem));
+
+    // ✅ Si la semana tiene datos completos → fondo verde
+    if (dataGuardada && dataGuardada.length > 0) {
+      const completa = dataGuardada.every(d => d.entrada && d.salida && d.horas > 0);
+      if (completa) div.classList.add("semana-completa");
+    }
+
+    // ✅ Al hacer clic, pasamos los datos aunque vengan del mes vecino
+    div.addEventListener("click", () => {
+      abrirSemana(anio, mes, sem, dataGuardada ? rango : null);
+    });
+
     contenedorSemanas.appendChild(div);
   });
+
+  calcularTotales(anio, mes);
 }
+
 
 // ==== CALCULAR SEMANAS DE UN MES (SIEMPRE EMPIEZAN LUNES) ====
 function obtenerSemanasDelMes(anio, mes) {
@@ -101,8 +123,9 @@ function formatearFecha(fecha) {
 }
 
 // ==== ABRIR SEMANA ====
-function abrirSemana(anio, mes, semana) {
-  semanaActual = { anio, mes, rango: `${formatearFecha(semana.inicio)}-${formatearFecha(semana.fin)}` };
+function abrirSemana(anio, mes, semana, rangoExistente = null) {
+  const rango = rangoExistente || `${formatearFecha(semana.inicio)}-${formatearFecha(semana.fin)}`;
+  semanaActual = { anio, mes, rango };
   tituloSemana.textContent = `Semana del ${formatearFecha(semana.inicio)} al ${formatearFecha(semana.fin)}`;
 
   contenedorSemanas.innerHTML = "";
@@ -111,11 +134,15 @@ function abrirSemana(anio, mes, semana) {
   const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
   tablaBody.innerHTML = "";
 
-  const dataGuardada = horarios[anio]?.[mes]?.[semanaActual.rango] || [];
+  // ✅ Buscar datos guardados en este mes o en los vecinos
+  const dataGuardada =
+    horarios[anio]?.[mes]?.[rango] ||
+    horarios[anio]?.[mes - 1]?.[rango] ||
+    horarios[anio]?.[parseInt(mes) + 1]?.[rango] ||
+    [];
 
   dias.forEach((dia, i) => {
     const fila = document.createElement("tr");
-
     const entrada = dataGuardada[i]?.entrada || "";
     const salida = dataGuardada[i]?.salida || "";
     const horas = dataGuardada[i]?.horas || "";
@@ -131,6 +158,7 @@ function abrirSemana(anio, mes, semana) {
 
   calcularTotal();
 }
+
 
 // ==== CALCULAR HORAS DIARIAS Y TOTALES ====
 tablaBody.addEventListener("input", e => {
@@ -186,14 +214,41 @@ btnGuardar.addEventListener("click", () => {
     datos.push({ dia, entrada, salida, horas });
   });
 
-  if (!horarios[semanaActual.anio]) horarios[semanaActual.anio] = {};
-  if (!horarios[semanaActual.anio][semanaActual.mes]) horarios[semanaActual.anio][semanaActual.mes] = {};
-  horarios[semanaActual.anio][semanaActual.mes][semanaActual.rango] = datos;
+  const anio = parseInt(semanaActual.anio);
+  const mesPrincipal = parseInt(semanaActual.mes);
+  const rango = semanaActual.rango;
 
+  if (!horarios[anio]) horarios[anio] = {};
+
+  // Guardar en el mes actual
+  if (!horarios[anio][mesPrincipal]) horarios[anio][mesPrincipal] = {};
+  horarios[anio][mesPrincipal][rango] = datos;
+
+  // --- NUEVO ---
+  // Analizamos el rango para detectar si cruza de mes
+  const [inicioStr, finStr] = rango.split("-");
+  const [diaInicio, mesInicio] = inicioStr.split("/").map(Number);
+  const [diaFin, mesFin] = finStr.split("/").map(Number);
+
+  // Si la semana cruza de mes, también guardamos en el otro mes
+  if (mesInicio !== mesFin) {
+    const mesAdyacente = mesFin !== mesPrincipal ? mesFin : mesInicio;
+    if (!horarios[anio][mesAdyacente]) horarios[anio][mesAdyacente] = {};
+    horarios[anio][mesAdyacente][rango] = datos;
+  }
+
+  // 🔁 Sincronizar si ya existía en meses vecinos
+  if (horarios[anio][mesPrincipal - 1]?.[rango])
+    horarios[anio][mesPrincipal - 1][rango] = datos;
+  if (horarios[anio][mesPrincipal + 1]?.[rango])
+    horarios[anio][mesPrincipal + 1][rango] = datos;
+
+  // Guardar en localStorage
   localStorage.setItem("horarios", JSON.stringify(horarios));
 
-  alert("✅ Semana guardada correctamente.");
+  alert("✅ Semana guardada y sincronizada con el mes vecino (si aplica).");
 });
+
 
 // ==== VOLVER ====
 btnVolver.addEventListener("click", () => {
@@ -279,5 +334,90 @@ btnVerMes.addEventListener("click", () => {
   calcularTotales(anio, mes);
 });
 
+// ==== EXPORTAR MES Y AÑO ====
 
+// Función para obtener el nombre del mes por número
+function obtenerNombreMes(numero) {
+  const nombres = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+  return nombres[numero - 1] || "";
+}
 
+// Exportar Mes
+document.getElementById("exportarMes").addEventListener("click", () => {
+  const anio = selectAnio.value;
+  const mes = selectMes.value;
+  const dataMes = horarios[anio]?.[mes];
+
+  if (!dataMes) {
+    alert("⚠️ No hay datos guardados para este mes.");
+    return;
+  }
+
+  const datos = [];
+  Object.entries(dataMes).forEach(([rango, dias]) => {
+    datos.push({ Semana: rango });
+    dias.forEach(dia => {
+      datos.push({
+        Día: dia.dia,
+        Entrada: dia.entrada,
+        Salida: dia.salida,
+        "Horas trabajadas": dia.horas.toFixed(2)
+      });
+    });
+    datos.push({});
+  });
+
+  // Agregar total mensual
+  const totalMensual = document.getElementById("totalMensual").textContent.split(": ")[1];
+  datos.push({ Día: "TOTAL MENSUAL", "Horas trabajadas": totalMensual });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(datos);
+  XLSX.utils.book_append_sheet(wb, ws, "Mes");
+
+  const nombreArchivo = `Horarios_${anio}_${mes}.xlsx`;
+  XLSX.writeFile(wb, nombreArchivo);
+});
+
+// Exportar Año
+document.getElementById("exportarAnio").addEventListener("click", () => {
+  const anio = selectAnio.value;
+  const dataAnio = horarios[anio];
+
+  if (!dataAnio) {
+    alert("⚠️ No hay datos guardados para este año.");
+    return;
+  }
+
+  const datos = [];
+  Object.entries(dataAnio).forEach(([mes, semanas]) => {
+    datos.push({ Mes: obtenerNombreMes(mes) });
+    Object.entries(semanas).forEach(([rango, dias]) => {
+      datos.push({ Semana: rango });
+      dias.forEach(dia => {
+        datos.push({
+          Día: dia.dia,
+          Entrada: dia.entrada,
+          Salida: dia.salida,
+          "Horas trabajadas": dia.horas.toFixed(2)
+        });
+      });
+      datos.push({});
+    });
+    datos.push({});
+  });
+
+  // Agregar total anual
+  const totalAnual = document.getElementById("totalAnual").textContent.split(": ")[1];
+  datos.push({ Día: "TOTAL ANUAL", "Horas trabajadas": totalAnual });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(datos);
+  XLSX.utils.book_append_sheet(wb, ws, "Año");
+
+  const nombreArchivo = `Horarios_${anio}.xlsx`;
+  XLSX.writeFile(wb, nombreArchivo);
+});
