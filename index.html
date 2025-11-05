@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="horario-de-trabajo.png" type="image/x-icon">
+
   <title>Gestor de Horarios Semanales</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1>Gestor de Horarios Semanales</h1>
+    <p id="totalMensual">Total mensual: 0 hs</p>
+    <p id="totalAnual">Total anual: 0 hs</p>
+
     <div class="selector">
       <label for="anio">Año:</label>
       <select id="anio"></select>
@@ -17,6 +22,11 @@
       <select id="mes"></select>
 
       <button id="verMes">Ver Mes</button>
+    </div>
+
+    <div class="expotadores">
+      <button id="exportarMes">Exportar Mes</button>
+      <button id="exportarAnio">Exportar Año</button>
     </div>
   </header>
 
