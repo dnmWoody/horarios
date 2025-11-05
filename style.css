@@ -159,6 +159,36 @@ header h1 {
   background-color: #0056b3;
 }
 
+#totalMensual, #totalAnual {
+  font-weight: bold;
+  margin-top: 10px;
+  color: #333;
+}
+
+.hora-exceso {
+  color: red !important;
+}
+
+#exportarMes, #exportarAnio {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#exportarMes:hover, #exportarAnio:hover {
+  background-color: #1e7e34;
+}
+
+.expotadores {
+  margin-top: 10px
+}
+
+
+
 /* ======== RESPONSIVE ======== */
 @media (max-width: 480px) {
   header h1 {
@@ -169,3 +199,4 @@ header h1 {
     padding: 6px;
   }
 }
+
