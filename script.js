@@ -237,3 +237,47 @@ btnExportar.addEventListener("click", () => {
   XLSX.writeFile(wb, nombreArchivo);
 });
 
+// ==== CALCULAR TOTAL MENSUAL Y ANUAL ====
+function calcularTotales(anio, mes) {
+  const dataAnio = horarios[anio];
+  if (!dataAnio) {
+    document.getElementById("totalMensual").textContent = "Total mensual: 0 hs";
+    document.getElementById("totalAnual").textContent = "Total anual: 0 hs";
+    return;
+  }
+
+  // ---- Total mensual ----
+  const dataMes = dataAnio[mes];
+  let totalMensual = 0;
+  if (dataMes) {
+    Object.values(dataMes).forEach(semana => {
+      semana.forEach(dia => {
+        totalMensual += dia.horas || 0;
+      });
+    });
+  }
+
+  // ---- Total anual ----
+  let totalAnual = 0;
+  Object.values(dataAnio).forEach(mesData => {
+    Object.values(mesData).forEach(semana => {
+      semana.forEach(dia => {
+        totalAnual += dia.horas || 0;
+      });
+    });
+  });
+
+  document.getElementById("totalMensual").textContent = `Total mensual: ${totalMensual.toFixed(2)} hs`;
+  document.getElementById("totalAnual").textContent = `Total anual: ${totalAnual.toFixed(2)} hs`;
+}
+
+// Recalcular cuando se cambia el mes
+btnVerMes.addEventListener("click", () => {
+  const anio = selectAnio.value;
+  const mes = selectMes.value;
+  mostrarSemanas(anio, mes);
+  calcularTotales(anio, mes);
+});
+
+
+
